@@ -11,7 +11,7 @@ FluxGym-R stems from the original FluxGym project: https://fluxgym.org/
 
 We tried to modernize the UI for slightly better flow, and of course, the biggie, add ROCm support!  We've also added another model for better captioning.
 
-ROCm 7.2 and 10 are integrated, although if you're reading this sentence, we haven't tested 10 yet.  We've also (theoretically) added support for CU128 (5000 series cards from Nvidia.  Again, currently untested.
+ROCm 7.2 and 10 are integrated, although if you're reading this sentence, we haven't tested 10 yet.  We've also (theoretically) added support for CU128 (5000 series cards from Nvidia).  Again, currently untested.
 
 We will make tweaks as needed if the community reports issues.
 
