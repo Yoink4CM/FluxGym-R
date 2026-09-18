@@ -15,7 +15,8 @@ ROCm 7.2 and 10 are integrated, although if you're reading this sentence, we hav
 
 We will make tweaks as needed if the community reports issues.
 
-*How to install
+How to install
+***************
 
 Your system must have ROCm or CUDA installed.  
 
