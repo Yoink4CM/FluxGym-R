@@ -23,3 +23,5 @@ git clone https://github.com/Yoink4CM/FluxGym-R
 cd FluxGym-R
 ./install.sh
 ./app-launch.sh
+
+Once loaded browse to http://local_ip:7680
