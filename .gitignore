@@ -1,0 +1,8 @@
+env/
+datasets/
+models/
+outputs/
+__pycache__/
+sd-scripts/
+HF_TOKEN
+*.pyc
