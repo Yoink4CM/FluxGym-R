@@ -11,29 +11,16 @@ FluxGym-R supports 100% of Kohya sd-scripts features through an [Advanced](#adva
 
 While training, the UI shows a centered status card (step, epoch, elapsed time, ETA, and current phase) plus a bottom-right GPU HUD (model, watts, VRAM). Raw logs stay in a collapsed Debug accordion.
 
-![screenshot.png](screenshot.png)
-
 ---
 
 
 # What is this?
 
-1. I wanted a super simple UI for training Flux LoRAs
-2. The [AI-Toolkit](https://github.com/ostris/ai-toolkit) project is great, and the gradio UI contribution by [@multimodalart](https://x.com/multimodalart) is perfect, but the project only works for 24GB VRAM.
-3. [Kohya Scripts](https://github.com/kohya-ss/sd-scripts) are very flexible and powerful for training FLUX, but you need to run in terminal.
-4. What if you could have the simplicity of AI-Toolkit WebUI and the flexibility of Kohya Scripts?
-5. Flux Gym was born. Supports 12GB, 16GB, 20GB, and 32GB VRAMs, and extensible since it uses Kohya Scripts underneath.
-6. **FluxGym-R** continues that idea for AMD GPUs on ROCm, with a clearer live training view.
+FluxGym-R continues the great work behind FluxGym and extends the idea for AMD GPUs on ROCm, with a clearer live training view.
 
 ---
 
-# News
 
-- September 25: Docker support + Autodownload Models (No need to manually download models when setting up) + Support custom base models (not just flux-dev but anything, just need to include in the [models.yaml](models.yaml) file.
-- September 16: Added "Publish to Huggingface" + 100% Kohya sd-scripts feature support: https://x.com/cocktailpeanut/status/1835719701172756592
-- September 11: Automatic Sample Image Generation + Custom Resolution: https://x.com/cocktailpeanut/status/1833881392482066638
-
----
 
 # Supported Models
 
