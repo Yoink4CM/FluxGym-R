@@ -121,17 +121,6 @@ docker compose up -d --build
 
 Open web browser and goto the IP address of the computer/VM: http://localhost:7860
 
-# Usage
-
-The usage is pretty straightforward:
-
-1. Enter the lora info
-2. Upload images and caption them (using the trigger word)
-3. Click "start".
-
-That's all!
-
-![flow.gif](flow.gif)
 
 # Configuration
 
