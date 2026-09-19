@@ -1,49 +1,62 @@
 # FluxGym-R
 
-Dead simple web UI for training FLUX LoRA on **AMD ROCm**, with **LOW VRAM (12GB/16GB/20GB/32GB) support.**
+Dead simple web UI for training FLUX LoRA with **LOW VRAM (12GB / 16GB / 20GB / 32GB)** support. This fork targets **AMD ROCm** first (Ubuntu 24.04), and also installs cleanly on **NVIDIA CUDA**.
 
-**FluxGym-R** is the ROCm edition of FluxGym: modern training status UI, live GPU telemetry, and AMD-first install scripts.
+- **Frontend:** Gradio WebUI (originally based on the [AI-Toolkit](https://github.com/ostris/ai-toolkit) UI by [@multimodalart](https://x.com/multimodalart)), redesigned as a 4-step wizard for FluxGym-R
+- **Backend:** Training powered by [Kohya sd-scripts](https://github.com/kohya-ss/sd-scripts) (`sd3` branch)
 
-- **Frontend:** Gradio WebUI (forked from [AI-Toolkit](https://github.com/ostris/ai-toolkit) UI by https://x.com/multimodalart), redesigned for FluxGym-R
-- **Backend:** Training powered by [Kohya Scripts](https://github.com/kohya-ss/sd-scripts)
-
-FluxGym-R supports 100% of Kohya sd-scripts features through an [Advanced](#advanced) tab, which is hidden by default.
-
-While training, the UI shows a centered status card (step, epoch, elapsed time, ETA, and current phase) plus a bottom-right GPU HUD (model, watts, VRAM). Raw logs stay in a collapsed Debug accordion.
+FluxGym-R exposes Kohya launch flags through an **Advanced options** accordion (hidden by default). While training, a status card shows phase, step/epoch, elapsed time, ETA, loss, download/FP8 progress when relevant, and live GPU telemetry (name, watts, VRAM). Raw logs stay in a collapsed **Debug log** accordion. You can stop a run from the UI.
 
 ---
 
+# Features
+
+| Area | What you get |
+|---|---|
+| Setup wizard | Upload → LoRA settings → Caption → Review & train |
+| Captioning | **JoyCaption** (default) or **Florence-2**; trigger word enforced in every caption |
+| Captions on upload | Pair `.txt` files with images (`img0.png` + `img0.txt`) |
+| VRAM profiles | `32G Quality`, `32G Safe`, `20G`, `16G`, `12G` |
+| Samples | Optional sample prompts every N steps (Kohya sample flags supported) |
+| Training UI | Status card, stop button, sample gallery, debug log |
+| Publish | Upload trained LoRAs to Hugging Face |
+| Download | Grab epoch checkpoints / final LoRA from a training run |
+| Delete | Remove selected project `outputs/` and `datasets/` folders |
+| Models | Auto-download selected base + CLIP/T5/VAE; extend via `models.yaml` |
+| Install | `./install.sh` auto-detects ROCm vs CUDA; `./install-rocm.sh` forces AMD |
+| Clean | `./clean.sh` wipes `env/`, weights, datasets, outputs, and `sd-scripts/` |
+
+---
 
 # What is this?
 
-FluxGym-R continues the great work behind FluxGym and extends the idea for AMD GPUs on ROCm, with a clearer live training view.
+1. A simple UI for training Flux LoRAs without living in the terminal.
+2. [AI-Toolkit](https://github.com/ostris/ai-toolkit) is great, but its Gradio UI path was aimed at high VRAM.
+3. [Kohya sd-scripts](https://github.com/kohya-ss/sd-scripts) are flexible for FLUX, but CLI-heavy.
+4. FluxGym combined AI-Toolkit-style simplicity with Kohya underneath for 12–32GB VRAM.
+5. **FluxGym-R** continues that for AMD GPUs on ROCm, with a clearer training view and AMD-first install scripts (CUDA still supported).
 
 ---
 
-
-
 # Supported Models
 
-1. Flux1-dev
-2. Flux1-dev2pro (as explained here: https://medium.com/@zhiwangshi28/why-flux-lora-so-hard-to-train-and-how-to-overcome-it-a0c70bc59eaf)
-3. Flux1-schnell (Couldn't get high quality results, so not really recommended, but feel free to experiment with it)
-4. More?
+1. **flux-dev**
+2. **bdsqlsz/flux1-dev2pro-single** ([background](https://medium.com/@zhiwangshi28/why-flux-lora-so-hard-to-train-and-how-to-overcome-it-a0c70bc59eaf))
+3. **flux-schnell** (often lower quality; fine for experiments)
 
-The models are automatically downloaded when you start training with the model selected.
-
-You can easily add more to the supported models list by editing the [models.yaml](models.yaml) file. If you want to share some interesting base models, please send a PR.
+Models download automatically when you start training with one selected. Add more by editing [`models.yaml`](models.yaml).
 
 ---
 
 # Install
 
-This fork targets **Ubuntu 24.04 LTS**. The installer auto-detects **AMD (ROCm)** vs **NVIDIA (CUDA)** and installs matching PyTorch **before** other requirements so pip does not pull the wrong wheel. Python 3.12 is the Ubuntu 24.04 default.
+Native install targets **Ubuntu 24.04 LTS** (Python 3.12). The installer auto-detects **AMD (ROCm)** vs **NVIDIA (CUDA)** and installs matching PyTorch **before** other requirements so pip does not pull the wrong wheel.
 
 **AMD ROCm wheel selection** (when `ROCM_TORCH_INDEX` is unset):
 
 | ROCm stack | PyTorch index | Notes |
 |---|---|---|
-| 10.x (or `ROCM_VERSION=10`) | `nightly/rocm10.0` | Nightly wheels until a stable `rocm10.0` index ships |
+| 10.x (or `ROCM_VERSION=10`) | `nightly/rocm10.0` | Nightly until a stable `rocm10.0` index ships |
 | 7.2 (default) | `rocm7.2` | Stable; used when ROCm is below 10 or version is unknown |
 | Forced 7.x via `ROCM_VERSION=7.2` | `rocm7.2` | Explicit pin |
 
@@ -57,22 +70,22 @@ This fork targets **Ubuntu 24.04 LTS**. The installer auto-detects **AMD (ROCm)*
 | 12.1–12.3 | `cu121` | |
 | 11.x | `cu118` | Older stacks |
 
-Install system packages if needed:
+System packages (if needed):
 
-```
+```bash
 sudo apt install python3 python3-venv python3-pip git
 ```
 
-From the FluxGym-R repo root:
+From the repo root:
 
-```
-chmod +x install.sh install-rocm.sh app-launch.sh
+```bash
+chmod +x install.sh install-rocm.sh app-launch.sh clean.sh
 ./install.sh
 ```
 
 Optional overrides:
 
-```
+```bash
 # Force a backend
 FORCE_GPU=rocm ./install.sh
 FORCE_GPU=cuda ./install.sh
@@ -92,119 +105,108 @@ ROCM_TORCH_INDEX=https://download.pytorch.org/whl/nightly/rocm10.0 ./install.sh
 CUDA_TORCH_INDEX=https://download.pytorch.org/whl/cu126 ./install.sh
 ```
 
-The installer creates `env/`, pins `opencv-python==4.10.0.84` (avoids a Python 3.12 source-build failure), installs `sd-scripts` and FluxGym requirements, and writes `env/.fluxgym-gpu-backend` (plus `env/.fluxgym-rocm-index` on AMD) for `app-launch.sh`. If `sd-scripts` is already present, it is reused.
+The installer creates `env/`, pins `opencv-python==4.10.0.84` (avoids a Python 3.12 source-build failure), clones `sd-scripts` on the `sd3` branch if missing, installs requirements, and writes `env/.fluxgym-gpu-backend` (plus `env/.fluxgym-rocm-index` on AMD) for `app-launch.sh`.
 
 # Start
 
-```
+```bash
 ./app-launch.sh
 ```
+
+Open the UI at `http://localhost:7860` (binds to `0.0.0.0` by default via `GRADIO_SERVER_NAME`).
 
 On AMD and NVIDIA, training uses `torch.cuda` (`torch.cuda.is_available()` should be `True` when a GPU backend was installed).
 
 ## Install via Docker
 
-First clone FluxGym-R and kohya-ss/sd-scripts:
+The included Dockerfiles / `docker-compose.yml` are **NVIDIA-oriented**. For AMD ROCm, prefer the native `./install.sh` path above.
 
-```
+```bash
 git clone https://github.com/Yoink4CM/FluxGym-R
 cd FluxGym-R
 git clone -b sd3 https://github.com/kohya-ss/sd-scripts
 ```
-Check your `user id` and `group id` and change it if it's not 1000 via `environment variables` of `PUID` and `PGID`. 
-You can find out what these are in linux by running the following command: `id`
 
-Now build the image and run it via `docker-compose`:
-```
+Set `PUID` / `PGID` if your user is not `1000` (`id` on Linux). Then:
+
+```bash
 docker compose up -d --build
 ```
 
-Open web browser and goto the IP address of the computer/VM: http://localhost:7860
+Open http://localhost:7860
 
+Use `Dockerfile.cuda12.4` in `docker-compose.yml` if you need that CUDA driver line.
+
+---
+
+# Usage
+
+1. **Upload images** — at least 2 images (about 4–30 is ideal). Optional matching `.txt` caption files.
+2. **LoRA settings** — name, trigger word/sentence, base model, VRAM profile, repeats/epochs, optional sample prompts, resize resolution.
+3. **Caption images** — run JoyCaption or Florence-2, or edit captions by hand. The trigger must appear in every caption.
+4. **Review & train** — check the generated script/config, open Advanced options if needed, then start. Use **Stop training** to abort.
+
+Outputs land under `outputs/<lora_name>/`; datasets under `datasets/<lora_name>/`.
+
+---
 
 # Configuration
 
 ## Sample Images
 
-By default fluxgym doesn't generate any sample images during training.
+Sample generation is off until you set both:
 
-You can however configure Fluxgym to automatically generate sample images for every N steps. Here's what it looks like:
+1. **Sample Image Prompts** — one prompt per line.
+2. **Sample Image Every N Steps** — e.g. expected steps 960 and interval 100 → samples at 100, 200, …, 900 for each prompt.
 
-![sample.png](sample.png)
+### Advanced sample flags
 
-To turn this on, just set the two fields:
+Kohya [sample syntax](https://github.com/kohya-ss/sd-scripts?tab=readme-ov-file#sample-image-generation-during-training) works in each prompt line:
 
-1. **Sample Image Prompts:** These prompts will be used to automatically generate images during training. If you want multiple, separate teach prompt with new line.
-2. **Sample Image Every N Steps:** If your "Expected training steps" is 960 and your "Sample Image Every N Steps" is 100, the images will be generated at step 100, 200, 300, 400, 500, 600, 700, 800, 900, for EACH prompt.
-
-![sample_fields.png](sample_fields.png)
-
-## Advanced Sample Images
-
-Thanks to the built-in syntax from [kohya/sd-scripts](https://github.com/kohya-ss/sd-scripts?tab=readme-ov-file#sample-image-generation-during-training), you can control exactly how the sample images are generated during the training phase:
-
-Let's say the trigger word is **hrld person.** Normally you would try sample prompts like:
-
-```
-hrld person is riding a bike
-hrld person is a body builder
-hrld person is a rock star
-```
-
-But for every prompt you can include **advanced flags** to fully control the image generation process. For example, the `--d` flag lets you specify the SEED.
-
-Specifying a seed means every sample image will use that exact seed, which means you can literally see the LoRA evolve. Here's an example usage:
-
-```
+```text
 hrld person is riding a bike --d 42
 hrld person is a body builder --d 42
-hrld person is a rock star --d 42
 ```
 
-Here's what it looks like in the UI:
+Useful flags:
 
-![flags.png](flags.png)
+- `--n` — negative prompt (until the next option)
+- `--w` / `--h` — width / height
+- `--d` — seed
+- `--l` — CFG scale
+- `--s` — sampling steps
 
-And here are the results:
+Attention weighting such as `( )` and `[ ]` also works.
 
-![seed.gif](seed.gif)
+## Publishing to Hugging Face
 
-In addition to the `--d` flag, here are other flags you can use:
+1. Create a token at https://huggingface.co/settings/tokens
+2. On the **Publish** tab, paste it and click **Login** (saved locally as `HF_TOKEN`)
+3. Pick a trained LoRA, set visibility/name, upload
 
+## Download checkpoints
 
-- `--n`: Negative prompt up to the next option.
-- `--w`: Specifies the width of the generated image.
-- `--h`: Specifies the height of the generated image.
-- `--d`: Specifies the seed of the generated image.
-- `--l`: Specifies the CFG scale of the generated image.
-- `--s`: Specifies the number of steps in the generation.
+On the **Download** tab, select a training run and download intermediate epoch saves or the final LoRA.
 
-The prompt weighting such as `( )` and `[ ]` also work. (Learn more about [Attention/Emphasis](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Features#attentionemphasis))
+## Delete projects
 
-## Publishing to Huggingface
+On the **Delete** tab, select one or more projects and confirm to permanently remove their `outputs/` and `datasets/` folders.
 
-1. Get your Huggingface Token from https://huggingface.co/settings/tokens
-2. Enter the token in the "Huggingface Token" field and click "Login". This will save the token text in a local file named `HF_TOKEN` (All local and private).
-3. Once you're logged in, you will be able to select a trained LoRA from the dropdown, choose public or private visibility, edit the name if you want, and publish to Huggingface.
+## Advanced options
 
-![publish_to_hf.png](publish_to_hf.png)
+The Advanced accordion is built from Kohya sd-scripts launch flags, so FluxGym-R can drive the full script surface. It stays collapsed by default.
 
+## Clean install / reclaim disk
 
-## Advanced
+```bash
+./clean.sh          # interactive confirm
+./clean.sh --yes    # non-interactive
+```
 
-The advanced tab is automatically constructed by parsing the launch flags available to the latest version of [kohya sd-scripts](https://github.com/kohya-ss/sd-scripts). This means Fluxgym is a full fledged UI for using the Kohya script.
+Removes `env/`, downloaded model weights under `models/`, `datasets/`, `outputs/`, `sd-scripts/`, `__pycache__/`, and `HF_TOKEN`. Hugging Face hub cache under `~/.cache/huggingface` is left alone. Run `./install.sh` again afterward.
 
-> By default the advanced tab is hidden. You can click the "advanced" accordion to expand it.
+---
 
-![advanced.png](advanced.png)
+# License
 
-
-## Advanced Features
-
-### Uploading Caption Files
-
-You can also upload the caption files along with the image files. You just need to follow the convention:
-
-1. Every caption file must be a `.txt` file.
-2. Each caption file needs to have a corresponding image file that has the same name.
-3. For example, if you have an image file named `img0.png`, the corresponding caption file must be `img0.txt`.
+See [LICENSE](LICENSE).
